@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>答案之书 - 优雅转盘</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  body {
+    background: linear-gradient(135deg, #1f2a44, #3e5871);
+    font-family: 'Noto Serif SC', serif;
+    color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    user-select: none;
+  }
+  #container {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, #2a3b5c 0%, #1a2540 90%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  }
+  #wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  .segment {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 50%;
+    left: 50%;
+    transform-origin: 0% 0%;
+    padding-left: 18px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd54f;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+  }
+  .highlight {
+    color: #fff;
+    text-shadow: 0 0 12px #fff, 0 0 20px #ffd700;
+  }
+  #pointer {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 40px solid #ffd700;
+    z-index: 10;
+  }
+  #spinBtn {
+    margin-top: 40px;
+    padding: 16px 56px;
+    font-size: 20px;
+    border-radius: 24px;
+    border: none;
+    background: linear-gradient(135deg, #ffd54f, #ffa000);
+    color: #3e2e00;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #result {
+    margin-top: 30px;
+    font-size: 22px;
+    text-align: center;
+    min-height: 70px;
+    max-width: 90vw;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <div id="pointer"></div>
+  <div id="wheel"></div>
+</div>
+
+<button id="spinBtn">转动答案之书</button>
+<div id="result">点击按钮，转动转盘揭晓你的哲理答案。</div>
+
+<script>
+const answers = [
+    "最黑暗的时刻，正是黎明的前奏。",
+    "改变自己，是解决问题的开始。",
+    "每一个不曾起舞的日子，都是对生命的辜负。",
+    "真正的智慧，是知道自己无知。",
+    "心若没有栖息的地方，到哪里都是流浪。",
+    "成长就是不断地放下过去的自己。",
+    "人生没有如果，只有结果和后果。",
+    "逆境是人生的磨刀石，能让你更锋利。",
+    "沉默有时是最好的回答。",
+    "学会等待，是一种智慧，也是一种力量。",
+    "走自己的路，让别人说去吧。",
+    "平凡之中蕴藏着伟大。",
+    "你是傻逼"
+];
+
+const wheel = document.getElementById("wheel");
+const spinBtn = document.getElementById("spinBtn");
+const result = document.getElementById("result");
+
+const segmentCount = answers.length;
+const segmentAngle = 360 / segmentCount;
+
+// 创建转盘扇区
+answers.forEach((text, i) => {
+  const seg = document.createElement("div");
+  seg.className = "segment";
+  seg.style.transform = `rotate(${i * segmentAngle}deg) skewY(-${90 - segmentAngle}deg)`;
+  seg.textContent = text;
+  wheel.appendChild(seg);
+});
+
+let deg = 0;
+spinBtn.addEventListener("click", () => {
+  spinBtn.disabled = true;
+  result.textContent = "转盘正在转动，请稍候...";
+  const targetIndex = Math.floor(Math.random() * segmentCount);
+  const spins = (Math.floor(Math.random() * 3) + 5) * 360;
+  const targetDeg = 360 - (targetIndex * segmentAngle + segmentAngle / 2);
+  deg += spins + targetDeg;
+
+  wheel.style.transition = "transform 5s cubic-bezier(0.33, 1, 0.68, 1)";
+  wheel.style.transform = `rotate(${deg}deg)`;
+
+  setTimeout(() => {
+    spinBtn.disabled = false;
+    const segments = wheel.querySelectorAll(".segment");
+    segments.forEach((seg, i) => {
+      seg.classList.toggle("highlight", i === targetIndex);
+    });
+    result.textContent = `🎯 你的哲理答案是：${answers[targetIndex]}`;
+  }, 5200);
+});
+</script>
+
+</body>
+</html>
